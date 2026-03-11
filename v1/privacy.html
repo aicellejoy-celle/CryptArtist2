@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy | CryptArtist 💀🎨</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="dark-theme doc-page">
+    <div class="background-grid"></div>
+    <div class="blob blob-1 doc-blob"></div>
+
+    <header class="glass-header">
+        <a href="index.html" class="logo-link">
+            <div class="logo">
+                <span class="emoji">💀🎨</span>
+                <h1>CryptArtist</h1>
+            </div>
+        </a>
+    </header>
+
+    <main class="container doc-container">
+        <div class="doc-panel glass-panel">
+            <h1 class="gradient-text">Privacy Policy</h1>
+            <p class="last-updated">Last Updated: March 2026</p>
+
+            <section class="doc-section">
+                <h2>1. The Blank Canvas Guarantee</h2>
+                <p>Welcome to CryptArtist. We believe that your creativity belongs entirely to you. Our core philosophy is absolute privacy. <strong>We do not store your generated images, your prompts, or any personal data on our servers.</strong></p>
+            </section>
+
+            <section class="doc-section">
+                <h2>2. How the App Works (No Data Retention)</h2>
+                <p>When you use our NFT generator:</p>
+                <ul>
+                    <li>Your prompt is sent securely, via our proxy or directly (if using BYOK), to the OpenAI API for generation.</li>
+                    <li>The resulting image is delivered directly to your browser.</li>
+                    <li>As soon as the generation is complete, the data vanishes from our serverless functions. <strong>We retain absolutely nothing.</strong></li>
+                </ul>
+            </section>
+
+            <section class="doc-section">
+                <h2>3. Bring Your Own Key (BYOK) Mode</h2>
+                <p>If you choose to use your own OpenAI API key to bypass our developer rate limits:</p>
+                <ul>
+                    <li>Your API key is stored <strong>locally in your browser's cookies</strong>.</li>
+                    <li>It is never transmitted to our servers by the frontend (it only talks directly to OpenAI).</li>
+                    <li>You can delete the key from your browser at any time via the settings menu.</li>
+                </ul>
+            </section>
+            
+            <section class="doc-section">
+                <h2>4. Rate Limiting Info</h2>
+                <p>For users utilizing our developer key, we track IP addresses temporarily in-memory within our Vercel Serverless Functions to enforce rate limits (1 per minute, 10 per hour). This data is volatile, not written to any database, and disappears automatically.</p>
+            </section>
+
+            <div class="doc-footer flex-center">
+                <a href="index.html" class="btn primary-btn"><i class="fas fa-arrow-left"></i> Back to Generator</a>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content flex-row">
+            <p>&copy; 2026 CryptArtist.</p>
+            <div class="footer-links flex-row">
+                <a href="privacy.html" class="active">Privacy</a>
+                <a href="terms.html">Terms</a>
+                <a href="https://github.com/aicellejoy-celle" target="_blank" rel="noopener"><i class="fab fa-github"></i> GitHub</a>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

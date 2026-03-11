@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptArtist 💀🎨 | AI NFT Generator</title>
+    <meta name="description" content="Generate stunning, fully private NFTs using AI. No storage, purely yours.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/components.css">
+    
+    <!-- Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="dark-theme">
+    <div class="background-grid"></div>
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    
+    <!-- Configuration Modal -->
+    <div id="config-modal" class="modal-overlay hidden">
+        <div class="modal glass-panel">
+            <button class="close-modal" id="close-config-btn"><i class="fas fa-times"></i></button>
+            <h2><i class="fas fa-cog"></i> Settings</h2>
+            <div class="settings-group">
+                <label for="byok-input">Bring Your Own Key (BYOK)</label>
+                <p class="settings-help">Enter your OpenAI API Key to bypass developer rate limits. Stored securely in your browser cookies.</p>
+                <div class="input-with-btn">
+                    <input type="password" id="byok-input" placeholder="sk-..." autocomplete="off">
+                    <button id="save-key-btn" class="btn primary-btn">Save Key</button>
+                </div>
+                <button id="clear-key-btn" class="btn text-btn hidden">Clear Saved Key</button>
+                <div id="key-status" class="status-message"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="glass-header">
+        <div class="logo">
+            <span class="emoji">💀🎨</span>
+            <h1>CryptArtist</h1>
+        </div>
+        <nav>
+            <button id="settings-btn" class="icon-btn tooltip" data-tooltip="Settings"><i class="fas fa-sliders-h"></i></button>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container">
+        <section class="hero">
+            <h2 class="gradient-text">Mint Your Imagination</h2>
+            <p class="subtitle">Enter a prompt and watch the AI forge your next NFT masterpiece. 100% private, 0 image retention.</p>
+        </section>
+
+        <section class="generator-area flex-col">
+            <!-- Templates -->
+            <div class="templates-scroll">
+                <span class="templates-label">Inspire me:</span>
+                <button class="template-chip" data-prompt="A highly detailed Cyberpunk samurai standing in the neon rain, 8k resolution, trending on ArtStation">Cyberpunk Samurai</button>
+                <button class="template-chip" data-prompt="Ethereal floating islands with glowing crystals, majestic lighting, digital art">Ethereal Islands</button>
+                <button class="template-chip" data-prompt="Philippines woman with robot face, intricate biomechanical details, cinematic lighting">Filipina Cyborg</button>
+                <button class="template-chip" data-prompt="A majestic lion made of constellation stars in deep space, cosmic colors">Cosmic Lion</button>
+            </div>
+
+            <!-- Input Area -->
+            <div class="input-panel glass-panel">
+                <textarea id="prompt-input" placeholder="Describe the NFT you want to create..."></textarea>
+                <div class="input-actions flex-row">
+                    <button id="randomize-btn" class="icon-btn tooltip" data-tooltip="Randomize Baseline"><i class="fas fa-dice"></i></button>
+                    <button class="btn primary-btn generate-btn" id="generate-btn">
+                        <span>Generate <i class="fas fa-wand-magic-sparkles"></i></span>
+                        <div class="btn-loader hidden"></div>
+                    </button>
+                </div>
+                <div id="rate-limit-warning" class="warning-text hidden"><i class="fas fa-exclamation-triangle"></i> Developer limit reached. Add your own API key in settings.</div>
+            </div>
+
+            <!-- Output Area -->
+            <div class="output-panel">
+                <div id="image-placeholder" class="image-box empty glass-panel flex-center flex-col">
+                    <div class="loader-ring hidden" id="main-loader"></div>
+                    <i class="fas fa-image placeholder-icon"></i>
+                    <p>Your masterpiece will appear here</p>
+                </div>
+                <!-- Image goes here -->
+                <div id="result-container" class="image-box result glass-panel hidden flex-col">
+                    <img id="generated-image" src="" alt="Generated NFT">
+                    <div class="result-actions flex-row">
+                        <a id="download-btn" href="#" class="btn secondary-btn"><i class="fas fa-download"></i> Download</a>
+                    </div>
+                </div>
+                <div id="error-message" class="error-panel glass-panel hidden">
+                    <i class="fas fa-times-circle"></i>
+                    <span id="error-text">Failed to generate image.</span>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content flex-row">
+            <p>&copy; 2026 CryptArtist. All images are yours.</p>
+            <div class="footer-links flex-row">
+                <a href="privacy.html">Privacy</a>
+                <a href="terms.html">Terms</a>
+                <a href="https://github.com/aicellejoy-celle" target="_blank" rel="noopener"><i class="fab fa-github"></i> GitHub</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/storage.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
