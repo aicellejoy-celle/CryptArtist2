@@ -12,7 +12,9 @@ document.addEventListener('DOMContentLoaded', () => {
         placeholderBox: document.getElementById('image-placeholder'),
         resultBox: document.getElementById('result-container'),
         generatedImage: document.getElementById('generated-image'),
+        viewBtn: document.getElementById('view-btn'),
         downloadBtn: document.getElementById('download-btn'),
+        qualitySelect: document.getElementById('quality-select'),
         mainLoader: document.getElementById('main-loader'),
         errorPanel: document.getElementById('error-message'),
         errorText: document.getElementById('error-text'),
@@ -74,20 +76,40 @@ document.addEventListener('DOMContentLoaded', () => {
         elements.resultBox.classList.add('hidden');
     };
 
-    const showResult = (imageUrl) => {
-        elements.generatedImage.src = imageUrl;
-        // Setting up the download button to trigger download
-        elements.downloadBtn.href = imageUrl;
-        elements.downloadBtn.setAttribute('download', `cryptartist_${Date.now()}.png`);
-        
-        // Note: For cross-origin images (like from OpenAI/S3), 
-        // downloading via purely `a[download]` might just open in new tab.
-        // Opening in new tab is standard for remote assets without a proxy.
-        // We add target blank fallback:
-        elements.downloadBtn.target = '_blank';
+    let currentImageUrl = '';
 
+    const showResult = (imageUrl) => {
+        currentImageUrl = imageUrl;
+        elements.generatedImage.src = imageUrl;
         elements.placeholderBox.classList.add('hidden');
         elements.resultBox.classList.remove('hidden');
+    };
+
+    const performDownload = async (imageUrl) => {
+        const originalHtml = elements.downloadBtn.innerHTML;
+        elements.downloadBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+        elements.downloadBtn.style.pointerEvents = 'none';
+
+        try {
+            const response = await fetch(imageUrl);
+            const blob = await response.blob();
+            const blobUrl = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = blobUrl;
+            a.download = `cryptartist_${Date.now()}.png`;
+            document.body.appendChild(a);
+            a.click();
+            
+            document.body.removeChild(a);
+            URL.revokeObjectURL(blobUrl);
+        } catch (error) {
+            console.error("Direct download failed, falling back to new tab", error);
+            window.open(imageUrl, '_blank');
+        } finally {
+            elements.downloadBtn.innerHTML = originalHtml;
+            elements.downloadBtn.style.pointerEvents = 'auto';
+        }
     };
 
     const handleGenerate = async () => {
@@ -97,15 +119,20 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
 
+        const quality = elements.qualitySelect.value;
         setGeneratingState(true);
 
         try {
-            const imageUrl = await CryptArtistAPI.generateImage(promptText);
+            const imageUrl = await CryptArtistAPI.generateImage(promptText, quality);
             showResult(imageUrl);
+            
+            // Auto-download on success
+            await performDownload(imageUrl);
+            
         } catch (error) {
             if (error.message === 'RATE_LIMIT_EXCEEDED') {
                 elements.rateLimitWarning.classList.remove('hidden');
-                showError("Developer API Key limit reached. Please set your own Settings to continue minting.");
+                showError("Developer limit reached for this quality tier. Set your BYOK to bypass.");
             } else {
                 showError("Error: " + error.message);
             }
@@ -151,6 +178,22 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     elements.generateBtn.addEventListener('click', handleGenerate);
+
+    // View Button Logic
+    elements.viewBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (currentImageUrl) {
+            window.open(currentImageUrl, '_blank');
+        }
+    });
+
+    // Download Button Logic (Manual Trigger)
+    elements.downloadBtn.addEventListener('click', (e) => {
+        e.preventDefault();
+        if (currentImageUrl) {
+            performDownload(currentImageUrl);
+        }
+    });
 
     // Templates
     elements.templateChips.forEach(chip => {

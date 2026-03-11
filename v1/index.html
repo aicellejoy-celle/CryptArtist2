@@ -73,13 +73,23 @@
             <div class="input-panel glass-panel">
                 <textarea id="prompt-input" placeholder="Describe the NFT you want to create..."></textarea>
                 <div class="input-actions flex-row">
-                    <button id="randomize-btn" class="icon-btn tooltip" data-tooltip="Randomize Baseline"><i class="fas fa-dice"></i></button>
-                    <button class="btn primary-btn generate-btn" id="generate-btn">
-                        <span>Generate <i class="fas fa-wand-magic-sparkles"></i></span>
-                        <div class="btn-loader hidden"></div>
-                    </button>
+                    <div class="quality-selector">
+                        <label for="quality-select"><i class="fas fa-layer-group"></i> Quality:</label>
+                        <select id="quality-select">
+                            <option value="low">Low (15/day)</option>
+                            <option value="medium" selected>Medium (5/day)</option>
+                            <option value="high">High HD (1/day)</option>
+                        </select>
+                    </div>
+                    <div class="flex-row" style="gap: 0.5rem;">
+                        <button id="randomize-btn" class="icon-btn tooltip" data-tooltip="Randomize Baseline"><i class="fas fa-dice"></i></button>
+                        <button class="btn primary-btn generate-btn" id="generate-btn">
+                            <span>Generate <i class="fas fa-wand-magic-sparkles"></i></span>
+                            <div class="btn-loader hidden"></div>
+                        </button>
+                    </div>
                 </div>
-                <div id="rate-limit-warning" class="warning-text hidden"><i class="fas fa-exclamation-triangle"></i> Developer limit reached. Add your own API key in settings.</div>
+                <div id="rate-limit-warning" class="warning-text hidden"><i class="fas fa-exclamation-triangle"></i> Developer limit reached for this tier. Add your own API key in settings.</div>
             </div>
 
             <!-- Output Area -->
@@ -93,7 +103,8 @@
                 <div id="result-container" class="image-box result glass-panel hidden flex-col">
                     <img id="generated-image" src="" alt="Generated NFT">
                     <div class="result-actions flex-row">
-                        <a id="download-btn" href="#" class="btn secondary-btn"><i class="fas fa-download"></i> Download</a>
+                        <button id="view-btn" class="btn secondary-btn"><i class="fas fa-expand"></i> View</button>
+                        <button id="download-btn" class="btn secondary-btn"><i class="fas fa-download"></i> Save</button>
                     </div>
                 </div>
                 <div id="error-message" class="error-panel glass-panel hidden">

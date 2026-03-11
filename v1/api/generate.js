@@ -5,10 +5,11 @@
 // Note: In Vercel, this state resets on cold-starts. Good enough for basic protection.
 const rateLimitStore = new Map();
 
-// Limits
+// 24 Hour Limits Based on Quality Tier
 const LIMITS = {
-    PER_MINUTE: 1,
-    PER_HOUR: 10
+    'high': 1,
+    'medium': 5,
+    'low': 15
 };
 
 export default async function handler(req, res) {
@@ -16,7 +17,7 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { prompt } = req.body;
+    const { prompt, quality = 'medium' } = req.body;
     
     if (!prompt) {
         return res.status(400).json({ error: 'Prompt is required' });
@@ -26,11 +27,14 @@ export default async function handler(req, res) {
     // Vercel populates x-real-ip or x-forwarded-for
     const clientIp = req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || 'unknown-ip';
 
-    // 2. Check Rate Limits
-    const isAllowed = checkRateLimit(clientIp);
+    // Validate quality input
+    const targetQuality = Object.keys(LIMITS).includes(quality) ? quality : 'medium';
+
+    // 2. Check Rate Limits (24-hour window per tier)
+    const isAllowed = checkRateLimit(clientIp, targetQuality);
     if (!isAllowed) {
         return res.status(429).json({ 
-            error: 'Rate limit exceeded. Please use your own API key in Settings for unlimited mints.' 
+            error: `Rate limit exceeded for ${targetQuality} quality. Please use your own API key in Settings for unlimited mints.` 
         });
     }
 
@@ -41,6 +45,10 @@ export default async function handler(req, res) {
             throw new Error("Server configuration error: Missing OPENAI_API_KEY");
         }
 
+        // Standard or HD depending on requested quality tier
+        const model = "dall-e-3";
+        const opQuality = targetQuality === 'high' ? "hd" : "standard";
+
         const response = await fetch('https://api.openai.com/v1/images/generations', {
             method: 'POST',
             headers: {
@@ -48,10 +56,11 @@ export default async function handler(req, res) {
                 'Authorization': `Bearer ${apiKey}`
             },
             body: JSON.stringify({
-                model: "dall-e-3",
+                model: model,
                 prompt: prompt,
                 n: 1,
                 size: "1024x1024",
+                quality: opQuality,
                 response_format: "url" // We just want the URL, no base64 storage
             })
         });
@@ -75,37 +84,39 @@ export default async function handler(req, res) {
 }
 
 /**
- * Basic in-memory rate limiter based on IP
+ * Basic in-memory rate limiter based on IP and Quality Tier
  * @param {string} ip 
+ * @param {string} qualityTier
  * @returns {boolean} true if allowed, false if limit exceeded
  */
-function checkRateLimit(ip) {
+function checkRateLimit(ip, qualityTier) {
     const now = Date.now();
-    const oneMinuteAgo = now - 60 * 1000;
-    const oneHourAgo = now - 60 * 60 * 1000;
+    const oneDayAgo = now - 24 * 60 * 60 * 1000;
 
     if (!rateLimitStore.has(ip)) {
-        rateLimitStore.set(ip, [now]);
-        return true;
+        rateLimitStore.set(ip, { 'high': [], 'medium': [], 'low': [] });
     }
 
-    let history = rateLimitStore.get(ip);
+    let userHistory = rateLimitStore.get(ip);
     
-    // Clean up old entries
-    history = history.filter(timestamp => timestamp > oneHourAgo);
+    // Clean up old entries older than 24 hours across all tiers
+    userHistory.high = userHistory.high.filter(timestamp => timestamp > oneDayAgo);
+    userHistory.medium = userHistory.medium.filter(timestamp => timestamp > oneDayAgo);
+    userHistory.low = userHistory.low.filter(timestamp => timestamp > oneDayAgo);
 
-    const requestsLastMinute = history.filter(t => t > oneMinuteAgo).length;
-    const requestsLastHour = history.length;
+    // Check limit for requested tier
+    const requestsLast24Hours = userHistory[qualityTier].length;
+    const maxAllowed = LIMITS[qualityTier];
 
-    if (requestsLastMinute >= LIMITS.PER_MINUTE || requestsLastHour >= LIMITS.PER_HOUR) {
-        // Save the cleaned history back
-        rateLimitStore.set(ip, history);
+    if (requestsLast24Hours >= maxAllowed) {
+        // Save cleaned history back before returning false
+        rateLimitStore.set(ip, userHistory);
         return false;
     }
 
     // Allow request and add to history
-    history.push(now);
-    rateLimitStore.set(ip, history);
+    userHistory[qualityTier].push(now);
+    rateLimitStore.set(ip, userHistory);
     
     return true;
 }
